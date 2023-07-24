@@ -5,6 +5,7 @@ public class Creature : MonoBehaviour
 {
     public bool isPredator;
     public bool isSick;
+    private bool hasSymptoms;
     public bool isFull;
     public float speed;
     public float strength;
@@ -158,25 +159,23 @@ public class Creature : MonoBehaviour
             );
             transform.position = clampedPosition;
 
-            if (isSick)
+            if (isSick && !hasSymptoms)
             {
                 speed /= 2;
                 strength /= 2;
+                lifetime /= 2;
+                hasSymptoms = true;
             }
 
             // Decrease the current lifetime
             if (isPredator)
             {
                 currentLifetime -= Time.deltaTime;
-                if (currentLifetime <= 0f)
-                {
-                    Destroy(gameObject);
-                }
+            }
 
-                if (isSick)
-                {
-                    lifetime /= 2;
-                }
+            if (currentLifetime <= 0f)
+            {
+                Destroy(gameObject);
             }
         }
     }
@@ -199,6 +198,7 @@ public class Creature : MonoBehaviour
     private void MateWithAnotherPrey()
     {
         float transmissionChance = 0.5f;
+        float inheritChance = 0.9f;
         // Find another prey in the scene that has also eaten enough resources to mate
         Creature[] allPreys = FindObjectsOfType<Creature>();
         List<Creature> potentialMates = new List<Creature>();
@@ -238,6 +238,14 @@ public class Creature : MonoBehaviour
             tryMate = false;
             SetNewRoamDestination();
             mate.SetNewRoamDestination();
+            if (Random.value < inheritChance)
+            {
+                Creature newPreyScript = newPrey.GetComponent<Creature>();
+                newPreyScript.lifetime = lifetime;
+                newPreyScript.speed = speed;
+                newPreyScript.strength = strength;
+                newPreyScript.isSick = true;
+            }
             newPrey.GetComponent<Creature>().SetNewRoamDestination();
         }
     }
