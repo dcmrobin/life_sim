@@ -120,7 +120,7 @@ public class Creature : MonoBehaviour
 
                     if (Vector3.Distance(transform.position, targetResource.position) <= 1f)
                     {
-                        float sicknessChance = 0.1f;
+                        float sicknessChance = 0.005f;
                         if (Random.value < sicknessChance)
                         {
                             isSick = true;
@@ -222,6 +222,7 @@ public class Creature : MonoBehaviour
 
             // Instantiate a new prey at the mating position
             GameObject newPrey = Instantiate(gameObject, matingPosition, Quaternion.identity);
+            Creature newPreyScript = newPrey.GetComponent<Creature>();
             newPrey.name = newPrey.name.Replace("(Clone)", "");
 
             // Reset eatenResources counts for both mates and the newborn prey
@@ -232,21 +233,26 @@ public class Creature : MonoBehaviour
             {
                 mate.GetComponent<Creature>().isSick = true;
             }
-            newPrey.GetComponent<Creature>().eatenResources = 0;
+            if (Random.value < inheritChance)
+            {
+                newPreyScript.lifetime = lifetime;
+                newPreyScript.speed = speed;
+                newPreyScript.strength = strength;
+                if (isSick)
+                {
+                    newPreyScript.isSick = true;
+                }
+            }
+            newPreyScript.speed = MutateProperty(Mathf.RoundToInt(newPreyScript.speed), 0.1f, 2);
+            newPreyScript.strength = MutateProperty(Mathf.RoundToInt(newPreyScript.strength), 0.1f, 2);
+            newPreyScript.lifetime = MutateProperty(Mathf.RoundToInt(newPreyScript.lifetime), 0.1f, 2);
+            newPreyScript.eatenResources = 0;
 
             // Set new random destinations for all three preys
             tryMate = false;
             SetNewRoamDestination();
             mate.SetNewRoamDestination();
-            if (Random.value < inheritChance)
-            {
-                Creature newPreyScript = newPrey.GetComponent<Creature>();
-                newPreyScript.lifetime = lifetime;
-                newPreyScript.speed = speed;
-                newPreyScript.strength = strength;
-                newPreyScript.isSick = true;
-            }
-            newPrey.GetComponent<Creature>().SetNewRoamDestination();
+            newPreyScript.SetNewRoamDestination();
         }
     }
 
@@ -264,10 +270,11 @@ public class Creature : MonoBehaviour
         infoPanel.SetActive(true);
     }
 
-    private float MutateProperty(float originalValue, float mutationChance, float maxMutationAmount)
+    private float MutateProperty(int originalValue, float mutationChance, int maxMutationAmount)
     {
         if (Random.value < mutationChance)
         {
+            Debug.Log("A mutation has occurred");
             return originalValue + Random.Range(-maxMutationAmount, maxMutationAmount);
         }
         return originalValue;

@@ -1627,6 +1627,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7470a96ad1b5694fa6c5ae28583a682, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  selectedCreature: {fileID: 0}
   creatureName: {fileID: 649392849}
   isSick: {fileID: 1316191026}
   lifeTime: {fileID: 2069381029}
