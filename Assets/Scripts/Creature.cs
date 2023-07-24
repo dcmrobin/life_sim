@@ -43,7 +43,6 @@ public class Creature : MonoBehaviour
 
     private void Update()
     {
-        CheckForClick();
         showingInfo = infoPanel.activeSelf;
         if (infoValues != null)
         {
@@ -52,109 +51,117 @@ public class Creature : MonoBehaviour
 
         if (!controller.GetComponent<GameController>().paused)
         {
-            if (!isSick)
+            if (isPredator)
             {
-                if (isPredator)
+                preyList.Clear();
+                Collider[] preyColliders = Physics.OverlapSphere(transform.position, detectionRadius, preyMask);
+                preyList.AddRange(preyColliders);
+
+                if (preyList.Count > 0)
                 {
-                    preyList.Clear();
-                    Collider[] preyColliders = Physics.OverlapSphere(transform.position, detectionRadius, preyMask);
-                    preyList.AddRange(preyColliders);
-
-                    if (preyList.Count > 0)
-                    {
-                        targetPrey = preyList[0].transform;
-                    }
-
-                    if (targetPrey != null)
-                    {
-                        transform.LookAt(targetPrey.position);
-                        transform.position += transform.forward * speed * Time.deltaTime;
-
-                        if (Vector3.Distance(transform.position, targetPrey.position) <= 1f)
-                        {
-                            Destroy(targetPrey.gameObject);
-                            currentLifetime += 3;
-                            targetPrey = null;
-                            SetNewRoamDestination();
-                        }
-                    }
-                    else if (!isRoaming)
-                    {
-                        SetNewRoamDestination();
-                    }
-                }
-                else
-                {
-                    predatorList.Clear();
-                    Collider[] predatorColliders = Physics.OverlapSphere(transform.position, detectionRadius, predatorMask);
-                    predatorList.AddRange(predatorColliders);
-
-                    resourceList.Clear();
-                    Collider[] resourceColliders = Physics.OverlapSphere(transform.position, detectionRadius, resourceMask);
-                    resourceList.AddRange(resourceColliders);
-
-                    if (resourceList.Count > 0)
-                    {
-                        targetResource = resourceList[0].transform;
-                    }
-
-                    if (eatenResources >= 2)
-                    {
-                        isFull = true;
-                        MateWithAnotherPrey();
-                    }
-
-                    if (predatorList.Count > 0 && !tryMate)
-                    {
-                        Transform predator = predatorList[Random.Range(0, predatorList.Count)].transform;
-                        Vector3 fleeDirection = transform.position - predator.position;
-                        transform.LookAt(transform.position + fleeDirection);
-                        transform.position += transform.forward * speed * Time.deltaTime;
-                    }
-                    else if (targetResource != null && !tryMate && !isFull)
-                    {
-                        transform.LookAt(targetResource.position);
-                        transform.position += transform.forward * speed * Time.deltaTime;
-
-                        if (Vector3.Distance(transform.position, targetResource.position) <= 1f)
-                        {
-                            Destroy(targetResource.gameObject);
-                            eatenResources += 1;
-                            targetResource = null;
-                            SetNewRoamDestination();
-                        }
-                    }
-                    else if (!isRoaming && !tryMate)
-                    {
-                        SetNewRoamDestination();
-                    }
+                    targetPrey = preyList[0].transform;
                 }
 
-                if (isRoaming)
+                if (targetPrey != null)
                 {
-                    Quaternion targetRotation = Quaternion.LookRotation(roamDestination - transform.position);
-                    transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, 5f * Time.deltaTime);
-
+                    transform.LookAt(targetPrey.position);
                     transform.position += transform.forward * speed * Time.deltaTime;
 
-                    if (Vector3.Distance(transform.position, roamDestination) <= 0.5f)
+                    if (Vector3.Distance(transform.position, targetPrey.position) <= 1f)
                     {
-                        isRoaming = false;
+                        if (targetPrey.GetComponent<Creature>().isSick)
+                        {
+                            isSick = true;
+                        }
+                        Destroy(targetPrey.gameObject);
+                        currentLifetime += 3;
+                        targetPrey = null;
+                        SetNewRoamDestination();
                     }
                 }
-
-                // Constrain movement within the plane object bounds
-                Vector3 clampedPosition = new Vector3(
-                    Mathf.Clamp(transform.position.x, planeObject.transform.position.x - planeObject.transform.localScale.x / 2f, planeObject.transform.position.x + planeObject.transform.localScale.x / 2f),
-                    transform.position.y,
-                    Mathf.Clamp(transform.position.z, planeObject.transform.position.z - planeObject.transform.localScale.z / 2f, planeObject.transform.position.z + planeObject.transform.localScale.z / 2f)
-                );
-                transform.position = clampedPosition;
+                else if (!isRoaming)
+                {
+                    SetNewRoamDestination();
+                }
             }
             else
             {
-                // Handle sick behavior
-                // ...
+                predatorList.Clear();
+                Collider[] predatorColliders = Physics.OverlapSphere(transform.position, detectionRadius, predatorMask);
+                predatorList.AddRange(predatorColliders);
+
+                resourceList.Clear();
+                Collider[] resourceColliders = Physics.OverlapSphere(transform.position, detectionRadius, resourceMask);
+                resourceList.AddRange(resourceColliders);
+
+                if (resourceList.Count > 0)
+                {
+                    targetResource = resourceList[0].transform;
+                }
+
+                if (eatenResources >= 2)
+                {
+                    isFull = true;
+                    MateWithAnotherPrey();
+                }
+
+                if (predatorList.Count > 0 && !tryMate)
+                {
+                    Transform predator = predatorList[Random.Range(0, predatorList.Count)].transform;
+                    Vector3 fleeDirection = transform.position - predator.position;
+                    transform.LookAt(transform.position + fleeDirection);
+                    transform.position += transform.forward * speed * Time.deltaTime;
+                }
+                else if (targetResource != null && !tryMate && !isFull)
+                {
+                    transform.LookAt(targetResource.position);
+                    transform.position += transform.forward * speed * Time.deltaTime;
+
+                    if (Vector3.Distance(transform.position, targetResource.position) <= 1f)
+                    {
+                        float sicknessChance = 0.1f;
+                        if (Random.value < sicknessChance)
+                        {
+                            isSick = true;
+                        }
+
+                        Destroy(targetResource.gameObject);
+                        eatenResources += 1;
+                        targetResource = null;
+                        SetNewRoamDestination();
+                    }
+                }
+                else if (!isRoaming && !tryMate)
+                {
+                    SetNewRoamDestination();
+                }
+            }
+
+            if (isRoaming)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(roamDestination - transform.position);
+                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, 5f * Time.deltaTime);
+
+                transform.position += transform.forward * speed * Time.deltaTime;
+
+                if (Vector3.Distance(transform.position, roamDestination) <= 0.5f)
+                {
+                    isRoaming = false;
+                }
+            }
+
+            // Constrain movement within the plane object bounds
+            Vector3 clampedPosition = new Vector3(
+                Mathf.Clamp(transform.position.x, planeObject.transform.position.x - planeObject.transform.localScale.x / 2f, planeObject.transform.position.x + planeObject.transform.localScale.x / 2f),
+                transform.position.y,
+                Mathf.Clamp(transform.position.z, planeObject.transform.position.z - planeObject.transform.localScale.z / 2f, planeObject.transform.position.z + planeObject.transform.localScale.z / 2f)
+            );
+            transform.position = clampedPosition;
+
+            if (isSick)
+            {
+                speed /= 2;
+                strength /= 2;
             }
 
             // Decrease the current lifetime
@@ -164,6 +171,11 @@ public class Creature : MonoBehaviour
                 if (currentLifetime <= 0f)
                 {
                     Destroy(gameObject);
+                }
+
+                if (isSick)
+                {
+                    lifetime /= 2;
                 }
             }
         }
@@ -186,6 +198,7 @@ public class Creature : MonoBehaviour
 
     private void MateWithAnotherPrey()
     {
+        float transmissionChance = 0.5f;
         // Find another prey in the scene that has also eaten enough resources to mate
         Creature[] allPreys = FindObjectsOfType<Creature>();
         List<Creature> potentialMates = new List<Creature>();
@@ -215,6 +228,10 @@ public class Creature : MonoBehaviour
             eatenResources = 0;
             isFull = false;
             mate.eatenResources = 0;
+            if (Random.value < transmissionChance && isSick == true)
+            {
+                mate.GetComponent<Creature>().isSick = true;
+            }
             newPrey.GetComponent<Creature>().eatenResources = 0;
 
             // Set new random destinations for all three preys
@@ -225,27 +242,26 @@ public class Creature : MonoBehaviour
         }
     }
 
-    public void CheckForClick()
+    private void OnMouseDown() {
+        infoValues = infoPanel.GetComponent<InfoPanel>();
+
+        infoValues.selectedCreature = gameObject;
+        infoValues.creatureName.text = gameObject.name;
+        infoValues.isSick.SetActive(isSick);
+        infoValues.lifeTime.text = lifetime.ToString();
+        infoValues.speed.text = speed.ToString();
+        infoValues.strength.text = strength.ToString();
+
+        infoPanel.SetActive(false);
+        infoPanel.SetActive(true);
+    }
+
+    private float MutateProperty(float originalValue, float mutationChance, float maxMutationAmount)
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Random.value < mutationChance)
         {
-            RaycastHit raycastHit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out raycastHit, 100f))
-            {
-                if (raycastHit.transform != null && raycastHit.transform.gameObject.layer == 6 || raycastHit.transform.gameObject.layer == 7)
-                {
-                    infoValues = infoPanel.GetComponent<InfoPanel>();
-
-                    infoValues.creatureName.text = gameObject.name;
-                    infoValues.isSick.SetActive(isSick);
-                    infoValues.lifeTime.text = lifetime.ToString();
-                    infoValues.speed.text = speed.ToString();
-                    infoValues.strength.text = strength.ToString();
-
-                    infoPanel.SetActive(true);
-                }
-            }
+            return originalValue + Random.Range(-maxMutationAmount, maxMutationAmount);
         }
+        return originalValue;
     }
 }
