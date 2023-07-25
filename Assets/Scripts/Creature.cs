@@ -260,6 +260,7 @@ public class Creature : MonoBehaviour
         infoValues = infoPanel.GetComponent<InfoPanel>();
 
         infoValues.selectedCreature = gameObject;
+        infoValues.fpCam.target = gameObject;
         infoValues.creatureName.text = gameObject.name;
         infoValues.isSick.SetActive(isSick);
         infoValues.lifeTime.text = lifetime.ToString();

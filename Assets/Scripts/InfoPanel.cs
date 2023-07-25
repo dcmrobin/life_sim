@@ -12,6 +12,8 @@ public class InfoPanel : MonoBehaviour
     public TMP_Text curlifeTime;
     public TMP_Text speed;
     public TMP_Text strength;
+    public FPperspective fpCam;
+    public GameObject birdseyeCam;
 
     private void Update() {
         lifeTime.text = Mathf.Round(float.Parse(lifeTime.text)).ToString();
@@ -21,6 +23,8 @@ public class InfoPanel : MonoBehaviour
 
         if (selectedCreature == null)
         {
+            fpCam.gameObject.SetActive(false);
+            birdseyeCam.SetActive(true);
             gameObject.SetActive(false);
         }
     }
