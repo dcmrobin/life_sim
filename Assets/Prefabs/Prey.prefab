@@ -46,10 +46,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdf4e5d035a334c4c9d355bb93db7b2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  generation: 0
+  generation: 1
   isPredator: 0
   isSick: 0
   isFull: 0
+  isFleeing: 0
+  isChasing: 0
+  isEating: 0
+  isMating: 0
+  mutated: 0
   speed: 5
   strength: 0
   detectionRadius: 15
@@ -68,6 +73,10 @@ MonoBehaviour:
   planeObject: {fileID: 0}
   controller: {fileID: 0}
   infoPanel: {fileID: 0}
+  mutationSpherePrefab: {fileID: 215092596669132483, guid: 959bbc9fe4fcb754f8b60880ba0fcebb, type: 3}
+  mate: {fileID: 0}
+  isRoaming: 0
+  tryMate: 0
   eatenResources: 0
 --- !u!65 &8971640312333890890
 BoxCollider:

@@ -12,6 +12,7 @@ public class Creature : MonoBehaviour
     public bool isChasing;
     public bool isEating;
     public bool isMating;
+    public bool mutated;
     public float speed;
     public float strength;
     public float detectionRadius;
@@ -24,6 +25,7 @@ public class Creature : MonoBehaviour
     public GameObject planeObject; // Reference to the plane object for movement constraints
     public GameObject controller;
     public GameObject infoPanel;
+    public GameObject mutationSpherePrefab;
     Creature[] allPreys;
     public GameObject mate;
 
@@ -36,6 +38,10 @@ public class Creature : MonoBehaviour
     private List<Collider> preyList = new List<Collider>();
     private List<Collider> predatorList = new List<Collider>();
     private List<Collider> resourceList = new List<Collider>();
+
+    private Vector3 mutationSpherePosition;
+    private float mutationSphereSize;
+    private Color mutationSphereColor;
 
     private float currentLifetime;
     public int eatenResources = 0;
@@ -221,7 +227,7 @@ public class Creature : MonoBehaviour
         bool closeEnough = false;
 
         float transmissionChance = 0.5f;
-        float inheritChance = 0.9f;
+        //float inheritChance = 0.9f;
         // Find another prey in the scene that has also eaten enough resources to mate
         List<Creature> potentialMates = new List<Creature>();
     
@@ -252,9 +258,11 @@ public class Creature : MonoBehaviour
             {
                 // Instantiate a new prey at the mating position
                 GameObject newPrey = Instantiate(gameObject, transform.position, Quaternion.identity);
+                SpawnMutationSphere(newPrey.transform);
                 Creature newPreyScript = newPrey.GetComponent<Creature>();
                 newPreyScript.generation += 1;
-                newPrey.name = newPrey.name.Replace("(Clone)", " Generation " + newPreyScript.generation);
+                newPrey.name = "Prey Generation " + newPreyScript.generation;
+                newPrey.name = newPrey.name.Replace("(Clone)", "");
 
                 // Reset eatenResources counts for both mates and the newborn prey
                 eatenResources = 0;
@@ -266,8 +274,8 @@ public class Creature : MonoBehaviour
                 {
                     mate.GetComponent<Creature>().isSick = true;
                 }
-                if (Random.value < inheritChance)
-                {
+                //if (Random.value < inheritChance)
+                //{
                     newPreyScript.lifetime = lifetime;
                     newPreyScript.speed = speed;
                     newPreyScript.strength = strength;
@@ -275,10 +283,19 @@ public class Creature : MonoBehaviour
                     {
                         newPreyScript.isSick = true;
                     }
+                //}
+                newPreyScript.speed = MutateProperty(Mathf.RoundToInt(newPreyScript.speed), 0.1f, 2, newPreyScript.mutated);
+                newPreyScript.strength = MutateProperty(Mathf.RoundToInt(newPreyScript.strength), 0.1f, 2, newPreyScript.mutated);
+                newPreyScript.lifetime = MutateProperty(Mathf.RoundToInt(newPreyScript.lifetime), 0.1f, 2, newPreyScript.mutated);
+
+                if (mutated)
+                {
+                    GameObject mutationSphere = Instantiate(mutationSpherePrefab, newPrey.transform);
+                    mutationSphere.transform.localPosition = mutationSpherePosition;
+                    mutationSphere.transform.localScale = new Vector3(mutationSphereSize, mutationSphereSize, mutationSphereSize);
+                    mutationSphere.GetComponent<MeshRenderer>().material.color = mutationSphereColor;
                 }
-                newPreyScript.speed = MutateProperty(Mathf.RoundToInt(newPreyScript.speed), 0.1f, 2);
-                newPreyScript.strength = MutateProperty(Mathf.RoundToInt(newPreyScript.strength), 0.1f, 2);
-                newPreyScript.lifetime = MutateProperty(Mathf.RoundToInt(newPreyScript.lifetime), 0.1f, 2);
+
                 newPreyScript.eatenResources = 0;
                 newPreyScript.isFull = false;
                 newPreyScript.tryMate = false;
@@ -308,13 +325,37 @@ public class Creature : MonoBehaviour
         infoPanel.SetActive(true);
     }
 
-    private float MutateProperty(int originalValue, float mutationChance, int maxMutationAmount)
+    private float MutateProperty(int originalValue, float mutationChance, int maxMutationAmount, bool mutateBool)
     {
         if (Random.value < mutationChance)
         {
-            Debug.Log("A mutation has occurred");
+            mutateBool = true;
             return originalValue + Random.Range(-maxMutationAmount, maxMutationAmount);
         }
         return originalValue;
+    }
+
+    private void SpawnMutationSphere(Transform preyTransform)
+    {
+        // Instantiate the mutation sphere prefab
+        GameObject mutationSphere = Instantiate(mutationSpherePrefab, preyTransform);
+
+        // Randomly set the size of the mutation sphere (0.5 to 1.5 units)
+        float randomSize = Random.Range(0.2f, 0.7f);
+        mutationSphere.transform.localScale = Vector3.one * randomSize;
+
+        // Randomly set the color of the mutation sphere
+        Renderer sphereRenderer = mutationSphere.GetComponent<Renderer>();
+
+        Color randomColor = new Color(Random.value, Random.value, Random.value);
+        sphereRenderer.material.color = randomColor;
+
+        // Randomly set the position of the mutation sphere within the prey
+        Vector3 randomPosition = Random.insideUnitSphere * 0.5f;
+        mutationSphere.transform.localPosition = randomPosition;
+
+        mutationSpherePosition = mutationSphere.transform.localPosition;
+        mutationSphereSize = randomSize;
+        mutationSphereColor = randomColor;
     }
 }

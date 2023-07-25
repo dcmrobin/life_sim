@@ -33,7 +33,7 @@ public class CreatureSpawner : MonoBehaviour
             // Instantiate the creature prefab at the random position
             GameObject creaturePrefab = GetRandomCreaturePrefab();
             GameObject creature = Instantiate(creaturePrefab, new Vector3(randomPosition.x, 0, randomPosition.z), Quaternion.identity);
-            creature.name = creature.name.Replace("(Clone)", "");
+            creature.name = creature.name.Replace("(Clone)", " Generation 1");
             creature.GetComponent<Creature>().planeObject = planeObject;
             creature.GetComponent<Creature>().controller = gameObject;
             creature.GetComponent<Creature>().infoPanel = infoPanel;
