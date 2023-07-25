@@ -64,7 +64,7 @@ MonoBehaviour:
   resourceMask:
     serializedVersion: 2
     m_Bits: 256
-  lifetime: 10
+  lifetime: 20
   planeObject: {fileID: 0}
   controller: {fileID: 0}
   infoPanel: {fileID: 0}

@@ -8,6 +8,10 @@ public class Creature : MonoBehaviour
     public bool isSick;
     private bool hasSymptoms;
     public bool isFull;
+    public bool isFleeing;
+    public bool isChasing;
+    public bool isEating;
+    public bool isMating;
     public float speed;
     public float strength;
     public float detectionRadius;
@@ -21,11 +25,12 @@ public class Creature : MonoBehaviour
     public GameObject controller;
     public GameObject infoPanel;
     Creature[] allPreys;
+    public GameObject mate;
 
     private Vector3 initialPosition;
     private Vector3 roamDestination;
-    private bool isRoaming;
-    private bool tryMate;
+    public bool isRoaming;
+    public bool tryMate;
     private bool showingInfo;
 
     private List<Collider> preyList = new List<Collider>();
@@ -68,6 +73,8 @@ public class Creature : MonoBehaviour
 
                 if (targetPrey != null)
                 {
+                    isChasing = true;
+                    isRoaming = false;
                     transform.LookAt(targetPrey.position);
                     transform.position += transform.forward * speed * Time.deltaTime;
 
@@ -81,10 +88,12 @@ public class Creature : MonoBehaviour
                         currentLifetime += 3;
                         targetPrey = null;
                         SetNewRoamDestination();
+                        isChasing = false;
                     }
                 }
                 else if (!isRoaming)
                 {
+                    isChasing = false;
                     SetNewRoamDestination();
                 }
             }
@@ -111,6 +120,9 @@ public class Creature : MonoBehaviour
 
                 if (predatorList.Count > 0 && !tryMate)
                 {
+                    isFleeing = true;
+                    isEating = false;
+                    isRoaming = false;
                     Transform predator = predatorList[Random.Range(0, predatorList.Count)].transform;
                     Vector3 fleeDirection = transform.position - predator.position;
                     transform.LookAt(transform.position + fleeDirection);
@@ -118,6 +130,9 @@ public class Creature : MonoBehaviour
                 }
                 else if (targetResource != null && !tryMate && !isFull)
                 {
+                    isFleeing = false;
+                    isEating = true;
+                    isRoaming = false;
                     transform.LookAt(targetResource.position);
                     transform.position += transform.forward * speed * Time.deltaTime;
 
@@ -133,6 +148,7 @@ public class Creature : MonoBehaviour
                         eatenResources += 1;
                         targetResource = null;
                         SetNewRoamDestination();
+                        isEating = false;
                     }
                 }
                 else if (!isRoaming && !tryMate)
@@ -195,6 +211,8 @@ public class Creature : MonoBehaviour
             Mathf.Clamp(initialPosition.z + Random.Range(-roamRadius, roamRadius), minBounds.z, maxBounds.z)
         );
 
+        isFleeing = false;
+        isEating = false;
         isRoaming = true;
     }
 
@@ -242,6 +260,7 @@ public class Creature : MonoBehaviour
                 eatenResources = 0;
                 isFull = false;
                 mate.eatenResources = 0;
+                mate.isFull = false;
                 if (Random.value < transmissionChance && isSick == true)
                 {
                     mate.GetComponent<Creature>().isSick = true;
@@ -260,6 +279,7 @@ public class Creature : MonoBehaviour
                 newPreyScript.strength = MutateProperty(Mathf.RoundToInt(newPreyScript.strength), 0.1f, 2);
                 newPreyScript.lifetime = MutateProperty(Mathf.RoundToInt(newPreyScript.lifetime), 0.1f, 2);
                 newPreyScript.eatenResources = 0;
+                newPreyScript.isFull = false;
 
                 // Set new random destinations for all three preys
                 tryMate = false;
@@ -277,6 +297,7 @@ public class Creature : MonoBehaviour
         infoValues.fpCam.target = gameObject;
         infoValues.creatureName.text = gameObject.name;
         infoValues.isSick.SetActive(isSick);
+        infoValues.isFull.SetActive(isFull);
         infoValues.lifeTime.text = lifetime.ToString();
         infoValues.speed.text = speed.ToString();
         infoValues.strength.text = strength.ToString();

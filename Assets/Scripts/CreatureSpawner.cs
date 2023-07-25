@@ -46,7 +46,8 @@ public class CreatureSpawner : MonoBehaviour
         {
             // Generate a random position within the bounds of the plane object
             Vector3 randomPosition = GetRandomPosition();
-            Instantiate(resourceObject, new Vector3(randomPosition.x/2, 0, randomPosition.z/2), Quaternion.identity);
+            GameObject newResource = Instantiate(resourceObject, new Vector3(randomPosition.x/2, 0, randomPosition.z/2), Quaternion.identity);
+            newResource.name = newResource.name.Replace("(Clone)", "");
         }
     }
 
