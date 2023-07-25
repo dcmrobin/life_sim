@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public class Creature : MonoBehaviour
 {
+    public int generation;
     public bool isPredator;
     public bool isSick;
     private bool hasSymptoms;
@@ -19,6 +20,7 @@ public class Creature : MonoBehaviour
     public GameObject planeObject; // Reference to the plane object for movement constraints
     public GameObject controller;
     public GameObject infoPanel;
+    Creature[] allPreys;
 
     private Vector3 initialPosition;
     private Vector3 roamDestination;
@@ -44,6 +46,7 @@ public class Creature : MonoBehaviour
 
     private void Update()
     {
+        allPreys = FindObjectsOfType<Creature>();
         showingInfo = infoPanel.activeSelf;
         if (infoValues != null)
         {
@@ -197,12 +200,13 @@ public class Creature : MonoBehaviour
 
     private void MateWithAnotherPrey()
     {
+        bool closeEnough = false;
+
         float transmissionChance = 0.5f;
         float inheritChance = 0.9f;
         // Find another prey in the scene that has also eaten enough resources to mate
-        Creature[] allPreys = FindObjectsOfType<Creature>();
         List<Creature> potentialMates = new List<Creature>();
-
+    
         foreach (Creature prey in allPreys)
         {
             if (prey != this && prey.eatenResources >= 2) // Exclude self and check eatenResources count
@@ -216,43 +220,53 @@ public class Creature : MonoBehaviour
         {
             tryMate = true;
             Creature mate = potentialMates[Random.Range(0, potentialMates.Count)];
-
-            // Calculate the mating position (midpoint between two mates)
-            Vector3 matingPosition = (transform.position + mate.transform.position) / 2f;
-
-            // Instantiate a new prey at the mating position
-            GameObject newPrey = Instantiate(gameObject, matingPosition, Quaternion.identity);
-            Creature newPreyScript = newPrey.GetComponent<Creature>();
-            newPrey.name = newPrey.name.Replace("(Clone)", "");
-
-            // Reset eatenResources counts for both mates and the newborn prey
-            eatenResources = 0;
-            isFull = false;
-            mate.eatenResources = 0;
-            if (Random.value < transmissionChance && isSick == true)
+            transform.LookAt(mate.transform.position);
+            if (Vector3.Distance(transform.position, mate.transform.position) <= 0.5f)
             {
-                mate.GetComponent<Creature>().isSick = true;
+                closeEnough = true;
             }
-            if (Random.value < inheritChance)
+            else
             {
-                newPreyScript.lifetime = lifetime;
-                newPreyScript.speed = speed;
-                newPreyScript.strength = strength;
-                if (isSick)
+                transform.position += transform.forward * speed * Time.deltaTime;
+            }
+
+            if (closeEnough)
+            {
+                // Instantiate a new prey at the mating position
+                GameObject newPrey = Instantiate(gameObject, transform.position, Quaternion.identity);
+                Creature newPreyScript = newPrey.GetComponent<Creature>();
+                newPreyScript.generation += 1;
+                newPrey.name = newPrey.name.Replace("(Clone)", " Generation " + newPreyScript.generation);
+
+                // Reset eatenResources counts for both mates and the newborn prey
+                eatenResources = 0;
+                isFull = false;
+                mate.eatenResources = 0;
+                if (Random.value < transmissionChance && isSick == true)
                 {
-                    newPreyScript.isSick = true;
+                    mate.GetComponent<Creature>().isSick = true;
                 }
-            }
-            newPreyScript.speed = MutateProperty(Mathf.RoundToInt(newPreyScript.speed), 0.1f, 2);
-            newPreyScript.strength = MutateProperty(Mathf.RoundToInt(newPreyScript.strength), 0.1f, 2);
-            newPreyScript.lifetime = MutateProperty(Mathf.RoundToInt(newPreyScript.lifetime), 0.1f, 2);
-            newPreyScript.eatenResources = 0;
+                if (Random.value < inheritChance)
+                {
+                    newPreyScript.lifetime = lifetime;
+                    newPreyScript.speed = speed;
+                    newPreyScript.strength = strength;
+                    if (isSick)
+                    {
+                        newPreyScript.isSick = true;
+                    }
+                }
+                newPreyScript.speed = MutateProperty(Mathf.RoundToInt(newPreyScript.speed), 0.1f, 2);
+                newPreyScript.strength = MutateProperty(Mathf.RoundToInt(newPreyScript.strength), 0.1f, 2);
+                newPreyScript.lifetime = MutateProperty(Mathf.RoundToInt(newPreyScript.lifetime), 0.1f, 2);
+                newPreyScript.eatenResources = 0;
 
-            // Set new random destinations for all three preys
-            tryMate = false;
-            SetNewRoamDestination();
-            mate.SetNewRoamDestination();
-            newPreyScript.SetNewRoamDestination();
+                // Set new random destinations for all three preys
+                tryMate = false;
+                SetNewRoamDestination();
+                mate.SetNewRoamDestination();
+                newPreyScript.SetNewRoamDestination();
+            }
         }
     }
 
