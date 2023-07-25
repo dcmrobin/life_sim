@@ -261,6 +261,7 @@ public class Creature : MonoBehaviour
                 isFull = false;
                 mate.eatenResources = 0;
                 mate.isFull = false;
+                mate.tryMate = false;
                 if (Random.value < transmissionChance && isSick == true)
                 {
                     mate.GetComponent<Creature>().isSick = true;
@@ -280,6 +281,7 @@ public class Creature : MonoBehaviour
                 newPreyScript.lifetime = MutateProperty(Mathf.RoundToInt(newPreyScript.lifetime), 0.1f, 2);
                 newPreyScript.eatenResources = 0;
                 newPreyScript.isFull = false;
+                newPreyScript.tryMate = false;
 
                 // Set new random destinations for all three preys
                 tryMate = false;
