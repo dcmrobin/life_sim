@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 699843656084760602}
   - component: {fileID: 5119205368378016717}
   m_Layer: 0
-  m_Name: Spawner
+  m_Name: Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -49,9 +49,10 @@ MonoBehaviour:
   predatorPrefab: {fileID: 1868051460048642083, guid: a8459a9202de97447b6bad04fefc9dc7, type: 3}
   resourceObject: {fileID: 1868051460048642083, guid: f2b63e377111f1f448170e068a7f4dda, type: 3}
   planeObject: {fileID: 0}
+  infoPanel: {fileID: 0}
   spawnInterval: 2
   spawnRadius: 10
-  preyChance: 0.7
+  preyChance: 0.5
 --- !u!114 &5119205368378016717
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -43,6 +43,7 @@
      <Compile Include="Assets\Scripts\GameController.cs" />
      <Compile Include="Assets\Scripts\CreatureSpawner.cs" />
      <Compile Include="Assets\Scripts\FPperspective.cs" />
+     <Compile Include="Assets\Scripts\SicknessNameGenerator.cs" />
      <Compile Include="Assets\Scripts\Creature.cs" />
      <Compile Include="Assets\Scripts\InfoPanel.cs" />
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

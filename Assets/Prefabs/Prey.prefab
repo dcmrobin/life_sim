@@ -46,6 +46,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdf4e5d035a334c4c9d355bb93db7b2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  immunityIDs: 
+  maxSicknessID: 10
+  sicknesses: []
   generation: 1
   isPredator: 0
   isSick: 0
@@ -54,7 +57,6 @@ MonoBehaviour:
   isChasing: 0
   isEating: 0
   isMating: 0
-  mutated: 0
   speed: 5
   strength: 0
   detectionRadius: 15
@@ -69,7 +71,7 @@ MonoBehaviour:
   resourceMask:
     serializedVersion: 2
     m_Bits: 256
-  lifetime: 20
+  lifetime: 50
   planeObject: {fileID: 0}
   controller: {fileID: 0}
   infoPanel: {fileID: 0}

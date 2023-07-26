@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 public class Creature : MonoBehaviour
 {
+    public List<int> immunityIDs = new List<int>();
+    public List<Sickness> sicknesses = new List<Sickness>();
+    int contractedSicknesses;
+    SicknessNameGenerator sicknessNameGenerator = new SicknessNameGenerator();
     public int generation;
     public bool isPredator;
     public bool isSick;
@@ -14,6 +18,8 @@ public class Creature : MonoBehaviour
     public bool isMating;
     public float speed;
     public float strength;
+    public float originalSpeed;
+    public float originalStrength;
     public float detectionRadius;
     public Transform targetPrey;
     public Transform targetResource;
@@ -49,6 +55,10 @@ public class Creature : MonoBehaviour
 
     private void Start()
     {
+        originalSpeed = speed;
+        originalStrength = strength;
+        //sicknesses = new Sickness[controller.GetComponent<GameController>().maxSicknessID];
+        //sicknesses = controller.GetComponent<GameController>().sicknesses;
         initialPosition = transform.position;
         SetNewRoamDestination();
         currentLifetime = lifetime;
@@ -61,6 +71,33 @@ public class Creature : MonoBehaviour
         if (infoValues != null)
         {
             infoValues.curlifeTime.text = currentLifetime.ToString();
+            infoValues.sicknesses.text = GetSicknessesAsString();
+            infoValues.isSick.SetActive(isSick);
+            infoValues.isFull.SetActive(isFull);
+            infoValues.lifeTime.text = lifetime.ToString();
+            infoValues.speed.text = speed.ToString();
+            infoValues.strength.text = strength.ToString();
+        }
+
+        if (!controller.GetComponent<GameController>().paused)
+        {
+            if (sicknesses.Count > 0)
+            {
+                for (int i = 0; i < sicknesses.Count; i++)
+                {
+                    sicknesses[i].duration -= Time.deltaTime;
+                    if (sicknesses[i].duration <= 0)
+                    {
+                        sicknesses.RemoveAt(i);
+                        if (sicknesses.Count <= 0)
+                        {
+                            isSick = false;
+                            speed = originalSpeed;
+                            strength = originalSpeed;
+                        }
+                    }
+                }
+            }
         }
 
         if (!controller.GetComponent<GameController>().paused)
@@ -87,7 +124,27 @@ public class Creature : MonoBehaviour
                     {
                         if (targetPrey.GetComponent<Creature>().isSick)
                         {
-                            isSick = true;
+                            int randomSicknessID = Random.Range(0, targetPrey.GetComponent<Creature>().contractedSicknesses); // Assuming 1 is the minimum sickness ID
+                            if (!immunityIDs.Contains(randomSicknessID) && !hasSymptoms)
+                            {
+                                hasSymptoms = true;
+                                isSick = true;
+                                //sicknesses.Capacity = contractedSicknesses;
+                                sicknesses = new List<Sickness>();
+                                int a = 0;
+                                while (a < targetPrey.GetComponent<Creature>().contractedSicknesses)
+                                {
+                                    sicknesses.Add(new Sickness(0, "", 0, 0));
+                                    a++;
+                                }
+                                for (int i = 0; i < sicknesses.Count; i++)
+                                {
+                                    sicknesses[i] = controller.GetComponent<GameController>().sicknesses[i];
+                                }
+                                // Apply the sickness effects on stats (e.g., half the speed and strength)
+                                speed *= controller.GetComponent<GameController>().sicknesses[randomSicknessID].statReductionFactor;
+                                strength *= controller.GetComponent<GameController>().sicknesses[randomSicknessID].statReductionFactor;
+                            }
                         }
                         Destroy(targetPrey.gameObject);
                         currentLifetime += 3;
@@ -143,10 +200,36 @@ public class Creature : MonoBehaviour
 
                     if (Vector3.Distance(transform.position, targetResource.position) <= 1f)
                     {
-                        float sicknessChance = 0.005f;
-                        if (Random.value < sicknessChance)
+                        float sicknessChance = 0.01f;
+                        // Determine if the resource carries a sickness
+                        bool carriesSickness = Random.value < sicknessChance;
+
+                        if (carriesSickness)
                         {
-                            isSick = true;
+                            contractedSicknesses += 1;
+                            int randomSicknessID = Random.Range(0, contractedSicknesses); // Assuming 1 is the minimum sickness ID
+
+                            // Check if the prey is immune to the sickness
+                            if (!immunityIDs.Contains(randomSicknessID) && !hasSymptoms)
+                            {
+                                hasSymptoms = true;
+                                isSick = true;
+                                //sicknesses.Capacity = contractedSicknesses;
+                                sicknesses = new List<Sickness>();
+                                int a = 0;
+                                while (a < contractedSicknesses)
+                                {
+                                    sicknesses.Add(new Sickness(0, "", 0, 0));
+                                    a++;
+                                }
+                                for (int i = 0; i < sicknesses.Count; i++)
+                                {
+                                    sicknesses[i] = controller.GetComponent<GameController>().sicknesses[i];
+                                }
+                                // Apply the sickness effects on stats (e.g., half the speed and strength)
+                                speed *= controller.GetComponent<GameController>().sicknesses[randomSicknessID].statReductionFactor;
+                                strength *= controller.GetComponent<GameController>().sicknesses[randomSicknessID].statReductionFactor;
+                            }
                         }
 
                         Destroy(targetResource.gameObject);
@@ -154,6 +237,7 @@ public class Creature : MonoBehaviour
                         targetResource = null;
                         SetNewRoamDestination();
                         isEating = false;
+                        hasSymptoms = false;
                     }
                 }
                 else if (!isRoaming && !tryMate)
@@ -183,16 +267,8 @@ public class Creature : MonoBehaviour
             );
             transform.position = clampedPosition;
 
-            if (isSick && !hasSymptoms)
-            {
-                speed /= 2;
-                strength /= 2;
-                lifetime /= 2;
-                hasSymptoms = true;
-            }
-
             // Decrease the current lifetime
-            if (isPredator)
+            if (isPredator || isSick)
             {
                 currentLifetime -= Time.deltaTime;
             }
@@ -225,7 +301,7 @@ public class Creature : MonoBehaviour
     {
         bool closeEnough = false;
 
-        float transmissionChance = 0.5f;
+        float transmissionChance = 0.8f;
         //float inheritChance = 0.9f;
         // Find another prey in the scene that has also eaten enough resources to mate
         List<Creature> potentialMates = new List<Creature>();
@@ -268,23 +344,24 @@ public class Creature : MonoBehaviour
                 mate.eatenResources = 0;
                 mate.isFull = false;
                 mate.tryMate = false;
-                if (Random.value < transmissionChance && isSick == true)
+                if (isSick)
                 {
                     mate.GetComponent<Creature>().isSick = true;
+                    if (Random.value < transmissionChance)
+                    {
+                        newPreyScript.isSick = true;
+                        newPreyScript.sicknesses = sicknesses;
+                    }
                 }
                 //if (Random.value < inheritChance)
                 //{
                     newPreyScript.lifetime = lifetime;
                     newPreyScript.speed = speed;
                     newPreyScript.strength = strength;
-                    if (isSick)
-                    {
-                        newPreyScript.isSick = true;
-                    }
                 //}
-                newPreyScript.speed = MutateProperty(Mathf.RoundToInt(newPreyScript.speed), Random.Range(0.01f, 0.1f), 2);
-                newPreyScript.strength = MutateProperty(Mathf.RoundToInt(newPreyScript.strength), Random.Range(0.01f, 0.1f), 2);
-                newPreyScript.lifetime = MutateProperty(Mathf.RoundToInt(newPreyScript.lifetime), Random.Range(0.01f, 0.1f), 2);
+                newPreyScript.speed = MutateProperty(Mathf.RoundToInt(newPreyScript.speed), Random.Range(0.01f, 0.1f), 3);
+                newPreyScript.strength = MutateProperty(Mathf.RoundToInt(newPreyScript.strength), Random.Range(0.01f, 0.1f), 3);
+                newPreyScript.lifetime = MutateProperty(Mathf.RoundToInt(newPreyScript.lifetime), Random.Range(0.01f, 0.1f), 4);
 
                 newPreyScript.eatenResources = 0;
                 newPreyScript.isFull = false;
@@ -305,8 +382,6 @@ public class Creature : MonoBehaviour
         infoValues.selectedCreature = gameObject;
         infoValues.fpCam.target = gameObject;
         infoValues.creatureName.text = gameObject.name;
-        infoValues.isSick.SetActive(isSick);
-        infoValues.isFull.SetActive(isFull);
         infoValues.lifeTime.text = lifetime.ToString();
         infoValues.speed.text = speed.ToString();
         infoValues.strength.text = strength.ToString();
@@ -321,7 +396,7 @@ public class Creature : MonoBehaviour
         {
             Debug.Log("A mutation has occurred");
             SpawnMutationSphere(transform);
-            return originalValue + Random.Range(-maxMutationAmount, maxMutationAmount);
+            return originalValue + Random.Range(Mathf.Round(-maxMutationAmount/2), maxMutationAmount);
         }
         return originalValue;
     }
@@ -348,5 +423,39 @@ public class Creature : MonoBehaviour
         mutationSpherePosition = mutationSphere.transform.localPosition;
         mutationSphereSize = randomSize;
         mutationSphereColor = randomColor;
+    }
+
+    public string GetSicknessesAsString()
+    {
+        string sicknessesString = "";
+
+        for (int i = 0; i < sicknesses.Count; i++)
+        {
+            sicknessesString += sicknesses[i].sicknessName;
+
+            if (i < sicknesses.Count - 1)
+            {
+                sicknessesString += ", ";
+            }
+        }
+
+        return sicknessesString;
+    }
+}
+
+[System.Serializable]
+public class Sickness
+{
+    public int sicknessID;
+    public string sicknessName;
+    public float duration;
+    public float statReductionFactor; // Factor by which stats are reduced when infected
+
+    public Sickness(int id, string name, float dur, float factor)
+    {
+        sicknessID = id;
+        sicknessName = name;
+        duration = dur;
+        statReductionFactor = factor;
     }
 }

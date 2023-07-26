@@ -14,6 +14,7 @@ public class InfoPanel : MonoBehaviour
     public TMP_Text speed;
     public TMP_Text strength;
     public TMP_Text status;
+    public TMP_Text sicknesses;
     public FPperspective fpCam;
     public GameObject birdseyeCam;
     Creature selectedCreatureScript;
@@ -21,8 +22,8 @@ public class InfoPanel : MonoBehaviour
     private void Update() {
         lifeTime.text = Mathf.Round(float.Parse(lifeTime.text)).ToString();
         curlifeTime.text = Mathf.Round(float.Parse(curlifeTime.text)).ToString();
-        speed.text = Mathf.Round(float.Parse(speed.text)).ToString();
-        strength.text = Mathf.Round(float.Parse(strength.text)).ToString();
+        speed.text = float.Parse(speed.text).ToString();
+        strength.text = float.Parse(strength.text).ToString();
 
         if (selectedCreature == null)
         {
