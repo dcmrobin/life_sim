@@ -12,7 +12,6 @@ public class Creature : MonoBehaviour
     public bool isChasing;
     public bool isEating;
     public bool isMating;
-    public bool mutated;
     public float speed;
     public float strength;
     public float detectionRadius;
@@ -258,7 +257,6 @@ public class Creature : MonoBehaviour
             {
                 // Instantiate a new prey at the mating position
                 GameObject newPrey = Instantiate(gameObject, transform.position, Quaternion.identity);
-                SpawnMutationSphere(newPrey.transform);
                 Creature newPreyScript = newPrey.GetComponent<Creature>();
                 newPreyScript.generation += 1;
                 newPrey.name = "Prey Generation " + newPreyScript.generation;
@@ -284,17 +282,9 @@ public class Creature : MonoBehaviour
                         newPreyScript.isSick = true;
                     }
                 //}
-                newPreyScript.speed = MutateProperty(Mathf.RoundToInt(newPreyScript.speed), 0.1f, 2, newPreyScript.mutated);
-                newPreyScript.strength = MutateProperty(Mathf.RoundToInt(newPreyScript.strength), 0.1f, 2, newPreyScript.mutated);
-                newPreyScript.lifetime = MutateProperty(Mathf.RoundToInt(newPreyScript.lifetime), 0.1f, 2, newPreyScript.mutated);
-
-                if (mutated)
-                {
-                    GameObject mutationSphere = Instantiate(mutationSpherePrefab, newPrey.transform);
-                    mutationSphere.transform.localPosition = mutationSpherePosition;
-                    mutationSphere.transform.localScale = new Vector3(mutationSphereSize, mutationSphereSize, mutationSphereSize);
-                    mutationSphere.GetComponent<MeshRenderer>().material.color = mutationSphereColor;
-                }
+                newPreyScript.speed = MutateProperty(Mathf.RoundToInt(newPreyScript.speed), Random.Range(0.01f, 0.1f), 2);
+                newPreyScript.strength = MutateProperty(Mathf.RoundToInt(newPreyScript.strength), Random.Range(0.01f, 0.1f), 2);
+                newPreyScript.lifetime = MutateProperty(Mathf.RoundToInt(newPreyScript.lifetime), Random.Range(0.01f, 0.1f), 2);
 
                 newPreyScript.eatenResources = 0;
                 newPreyScript.isFull = false;
@@ -325,11 +315,12 @@ public class Creature : MonoBehaviour
         infoPanel.SetActive(true);
     }
 
-    private float MutateProperty(int originalValue, float mutationChance, int maxMutationAmount, bool mutateBool)
+    private float MutateProperty(int originalValue, float mutationChance, int maxMutationAmount)
     {
         if (Random.value < mutationChance)
         {
-            mutateBool = true;
+            Debug.Log("A mutation has occurred");
+            SpawnMutationSphere(transform);
             return originalValue + Random.Range(-maxMutationAmount, maxMutationAmount);
         }
         return originalValue;
