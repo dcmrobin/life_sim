@@ -70,14 +70,18 @@ public class Creature : MonoBehaviour
         showingInfo = infoPanel.activeSelf;
         if (infoValues != null)
         {
-            infoValues.curlifeTime.text = currentLifetime.ToString();
-            infoValues.sicknesses.text = GetSicknessesAsString();
-            infoValues.isSick.SetActive(isSick);
-            infoValues.isFull.SetActive(isFull);
-            infoValues.lifeTime.text = lifetime.ToString();
-            infoValues.speed.text = speed.ToString();
-            infoValues.strength.text = strength.ToString();
+            if (infoValues.selectedCreature == gameObject && showingInfo)
+            {
+                infoValues.curlifeTime.text = currentLifetime.ToString();
+                infoValues.sicknesses.text = GetSicknessesAsString();
+                infoValues.isSick.SetActive(isSick);
+                infoValues.isFull.SetActive(isFull);
+                infoValues.lifeTime.text = lifetime.ToString();
+                infoValues.speed.text = speed.ToString();
+                infoValues.strength.text = strength.ToString();
+            }
         }
+        
 
         if (!controller.GetComponent<GameController>().paused)
         {
@@ -385,6 +389,8 @@ public class Creature : MonoBehaviour
         infoValues.lifeTime.text = lifetime.ToString();
         infoValues.speed.text = speed.ToString();
         infoValues.strength.text = strength.ToString();
+        infoValues.isSick.SetActive(isSick);
+        infoValues.isFull.SetActive(isFull);
 
         infoPanel.SetActive(false);
         infoPanel.SetActive(true);
