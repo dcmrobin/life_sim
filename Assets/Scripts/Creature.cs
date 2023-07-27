@@ -204,7 +204,7 @@ public class Creature : MonoBehaviour
 
                     if (Vector3.Distance(transform.position, targetResource.position) <= 1f)
                     {
-                        float sicknessChance = 0.01f;
+                        float sicknessChance = 0.037f;
                         // Determine if the resource carries a sickness
                         bool carriesSickness = Random.value < sicknessChance;
 
@@ -378,6 +378,10 @@ public class Creature : MonoBehaviour
                 newPreyScript.SetNewRoamDestination();
             }
         }
+        else
+        {
+            SetNewRoamDestination();
+        }
     }
 
     private void OnMouseDown() {
@@ -400,9 +404,18 @@ public class Creature : MonoBehaviour
     {
         if (Random.value < mutationChance)
         {
+            float randomValue = 0;
+            while (randomValue == 0)
+            {
+                randomValue = Random.Range(Mathf.Round(-maxMutationAmount/2), maxMutationAmount);
+            }
             Debug.Log("A mutation has occurred");
+            if (randomValue == 0)
+            {
+                Debug.Log("randomValue is zero!");
+            }
             SpawnMutationSphere(transform);
-            return originalValue + Random.Range(Mathf.Round(-maxMutationAmount/2), maxMutationAmount);
+            return originalValue + randomValue;
         }
         return originalValue;
     }

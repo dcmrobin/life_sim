@@ -19,7 +19,7 @@ public class GameController : MonoBehaviour
         }
         for (int i = 0; i < sicknesses.Count; i++)
         {
-            sicknesses[i] = new Sickness(i, sicknessNameGenerator.GenerateRandomSicknessName(), Random.Range(10f, 50f), Random.Range(0.1f, 0.9f));
+            sicknesses[i] = new Sickness(i, sicknessNameGenerator.GenerateRandomSicknessName(), Random.Range(30f, 100f), Random.Range(0.1f, 0.9f));
         }
     }
 
