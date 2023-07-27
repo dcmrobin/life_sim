@@ -369,6 +369,7 @@ public class Creature : MonoBehaviour
         bool closeEnough = false;
 
         float transmissionChance = 0.8f;
+        float immunityChance = 0.05f;
         //float inheritChance = 0.9f;
         // Find another prey in the scene that has also eaten enough resources to mate
         List<Creature> potentialMates = new List<Creature>();
@@ -419,6 +420,11 @@ public class Creature : MonoBehaviour
                         newPreyScript.isSick = true;
                         newPreyScript.sicknesses = sicknesses;
                     }
+                }
+
+                if (Random.value < immunityChance && immunityIDs.Count < controller.GetComponent<GameController>().maxSicknessID)
+                {
+                    immunityIDs.Add(Random.Range(0, controller.GetComponent<GameController>().maxSicknessID));
                 }
                 //if (Random.value < inheritChance)
                 //{

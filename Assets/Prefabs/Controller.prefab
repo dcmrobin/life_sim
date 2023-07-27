@@ -52,7 +52,7 @@ MonoBehaviour:
   infoPanel: {fileID: 0}
   spawnInterval: 2
   spawnRadius: 10
-  preyChance: 0.5
+  preyChance: 0.7
 --- !u!114 &5119205368378016717
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66,3 +66,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   paused: 0
+  maxSicknessID: 9
+  sicknesses: []
