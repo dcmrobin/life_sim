@@ -58,7 +58,9 @@ MonoBehaviour:
   isMating: 0
   speed: 7
   strength: 0
-  detectionRadius: 20
+  originalSpeed: 0
+  originalStrength: 0
+  detectionRadius: 17
   targetPrey: {fileID: 0}
   targetResource: {fileID: 0}
   preyMask:

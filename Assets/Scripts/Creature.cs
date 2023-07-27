@@ -31,7 +31,8 @@ public class Creature : MonoBehaviour
     public GameObject controller;
     public GameObject infoPanel;
     public GameObject mutationSpherePrefab;
-    Creature[] allPreys;
+    Creature[] allCreatures;
+    GameObject[] allResources;
     public GameObject mate;
 
     private Vector3 initialPosition;
@@ -66,7 +67,8 @@ public class Creature : MonoBehaviour
 
     private void Update()
     {
-        allPreys = FindObjectsOfType<Creature>();
+        allCreatures = FindObjectsOfType<Creature>();
+        allResources = GameObject.FindGameObjectsWithTag("Resource");
         showingInfo = infoPanel.activeSelf;
         if (infoValues != null)
         {
@@ -108,13 +110,21 @@ public class Creature : MonoBehaviour
         {
             if (isPredator)
             {
-                preyList.Clear();
-                Collider[] preyColliders = Physics.OverlapSphere(transform.position, detectionRadius, preyMask);
-                preyList.AddRange(preyColliders);
+                //preyList.Clear();
+                //Collider[] preyColliders = Physics.OverlapSphere(transform.position, detectionRadius, preyMask);
+                //preyList.AddRange(preyColliders);
 
-                if (preyList.Count > 0)
+                //if (preyList.Count > 0)
+                //{
+                //    targetPrey = preyList[0].transform;
+                //}
+
+                Transform closestPrey = FindClosestPrey();
+
+                if (closestPrey != null)
                 {
-                    targetPrey = preyList[0].transform;
+                    targetPrey = closestPrey;
+                    // Rest of the chasing logic remains the same as before
                 }
 
                 if (targetPrey != null)
@@ -169,13 +179,20 @@ public class Creature : MonoBehaviour
                 Collider[] predatorColliders = Physics.OverlapSphere(transform.position, detectionRadius, predatorMask);
                 predatorList.AddRange(predatorColliders);
 
-                resourceList.Clear();
+                /*resourceList.Clear();
                 Collider[] resourceColliders = Physics.OverlapSphere(transform.position, detectionRadius, resourceMask);
                 resourceList.AddRange(resourceColliders);
 
                 if (resourceList.Count > 0)
                 {
                     targetResource = resourceList[0].transform;
+                }*/
+                Transform closestResource = FindClosestResource();
+
+                if (closestResource != null)
+                {
+                    targetResource = closestResource;
+                    // Rest of the chasing logic remains the same as before
                 }
 
                 if (eatenResources >= 2)
@@ -310,9 +327,9 @@ public class Creature : MonoBehaviour
         // Find another prey in the scene that has also eaten enough resources to mate
         List<Creature> potentialMates = new List<Creature>();
     
-        foreach (Creature prey in allPreys)
+        foreach (Creature prey in allCreatures)
         {
-            if (prey != this && prey.eatenResources >= 2) // Exclude self and check eatenResources count
+            if (prey != this && prey.eatenResources >= 2 && prey.gameObject.layer == 6) // Exclude self and check eatenResources count
             {
                 potentialMates.Add(prey);
             }
@@ -459,6 +476,48 @@ public class Creature : MonoBehaviour
         }
 
         return sicknessesString;
+    }
+
+    private Transform FindClosestPrey()
+    {
+        float closestDistance = detectionRadius;
+        Transform closestPrey = null;
+
+        foreach (Creature creature in allCreatures)
+        {
+            if (creature != this && creature.isMating == false && creature.gameObject.layer == 6)
+            {
+                float distance = Vector3.Distance(transform.position, creature.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestPrey = creature.transform;
+                }
+            }
+        }
+
+        return closestPrey;
+    }
+
+    private Transform FindClosestResource()
+    {
+        float closestDistance = detectionRadius;
+        Transform closestResource = null;
+
+        foreach (GameObject resource in allResources)
+        {
+            if (resource.gameObject.layer == 8)
+            {
+                float distance = Vector3.Distance(transform.position, resource.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestResource = resource.transform;
+                }
+            }
+        }
+
+        return closestResource;
     }
 }
 
