@@ -123,8 +123,51 @@ public class Creature : MonoBehaviour
 
                 if (closestPrey != null)
                 {
+                    // SURROUND LOGIC
+                    // Check if there are other predators nearby
+                    /*
+                    List<Transform> nearbyPredators = new List<Transform>();
+                    Collider[] predatorColliders = Physics.OverlapSphere(transform.position, detectionRadius, predatorMask);
+                    bool reachedDest = false;
+                    foreach (var collider in predatorColliders)
+                    {
+                        if (collider.transform != this.transform)
+                        {
+                            nearbyPredators.Add(collider.transform);
+                        }
+                    }
+
+                    if (nearbyPredators.Count > 0)
+                    {
+                        // Coordinate with nearby predators to surround the prey
+                        Vector3 averagePosition = Vector3.zero;
+                        foreach (var predator in nearbyPredators)
+                        {
+                            averagePosition += predator.position;
+                        }
+                        averagePosition /= nearbyPredators.Count;
+
+                        // Calculate the direction to the prey and move towards it
+                        Vector3 directionToPrey = (closestPrey.position - averagePosition).normalized;
+                        transform.LookAt(transform.position + directionToPrey);
+                        if (transform.position != directionToPrey && !reachedDest)
+                        {
+                            transform.position += transform.forward * speed * Time.deltaTime;
+                        }
+                        else
+                        {
+                            reachedDest = true;
+                            targetPrey = closestPrey;
+                        }
+                    }
+                    else
+                    {
+                        // If no nearby predators, behave as before and chase the closest prey
+                        targetPrey = closestPrey;
+                        // Rest of the chasing logic remains the same as before
+                    }*/
+
                     targetPrey = closestPrey;
-                    // Rest of the chasing logic remains the same as before
                 }
 
                 if (targetPrey != null)
@@ -138,26 +181,29 @@ public class Creature : MonoBehaviour
                     {
                         if (targetPrey.GetComponent<Creature>().isSick)
                         {
-                            int randomSicknessID = Random.Range(0, targetPrey.GetComponent<Creature>().contractedSicknesses); // Assuming 1 is the minimum sickness ID
-                            if (!immunityIDs.Contains(randomSicknessID) && !hasSymptoms)
+                            //int randomSicknessID = Random.Range(0, targetPrey.GetComponent<Creature>().contractedSicknesses); // Assuming 1 is the minimum sickness ID
+                            for (int i = 0; i < targetPrey.GetComponent<Creature>().sicknesses.Count; i++)
                             {
-                                hasSymptoms = true;
-                                isSick = true;
-                                //sicknesses.Capacity = contractedSicknesses;
-                                sicknesses = new List<Sickness>();
-                                int a = 0;
-                                while (a < targetPrey.GetComponent<Creature>().contractedSicknesses)
+                                if (!immunityIDs.Contains(targetPrey.GetComponent<Creature>().sicknesses[i].sicknessID) && !hasSymptoms)
                                 {
-                                    sicknesses.Add(new Sickness(0, "", 0, 0));
-                                    a++;
+                                    hasSymptoms = true;
+                                    isSick = true;
+                                    //sicknesses.Capacity = contractedSicknesses;
+                                    sicknesses = new List<Sickness>();
+                                    int a = 0;
+                                    while (a < targetPrey.GetComponent<Creature>().contractedSicknesses)
+                                    {
+                                        sicknesses.Add(new Sickness(0, "", 0, 0));
+                                        a++;
+                                    }
+                                    for (int y = 0; y < sicknesses.Count; y++)
+                                    {
+                                        sicknesses[y] = controller.GetComponent<GameController>().sicknesses[y];
+                                    }
+                                    // Apply the sickness effects on stats (e.g., half the speed and strength)
+                                    speed *= controller.GetComponent<GameController>().sicknesses[targetPrey.GetComponent<Creature>().sicknesses[i].sicknessID].statReductionFactor;
+                                    strength *= controller.GetComponent<GameController>().sicknesses[targetPrey.GetComponent<Creature>().sicknesses[i].sicknessID].statReductionFactor;
                                 }
-                                for (int i = 0; i < sicknesses.Count; i++)
-                                {
-                                    sicknesses[i] = controller.GetComponent<GameController>().sicknesses[i];
-                                }
-                                // Apply the sickness effects on stats (e.g., half the speed and strength)
-                                speed *= controller.GetComponent<GameController>().sicknesses[randomSicknessID].statReductionFactor;
-                                strength *= controller.GetComponent<GameController>().sicknesses[randomSicknessID].statReductionFactor;
                             }
                         }
                         Destroy(targetPrey.gameObject);
