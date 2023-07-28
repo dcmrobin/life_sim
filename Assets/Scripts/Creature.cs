@@ -207,7 +207,10 @@ public class Creature : MonoBehaviour
                                     }
                                     for (int y = 0; y < sicknesses.Count; y++)
                                     {
-                                        sicknesses[y] = controller.GetComponent<GameController>().sicknesses[y];
+                                        sicknesses[y].sicknessID = controller.GetComponent<GameController>().sicknesses[y].sicknessID;
+                                        sicknesses[y].sicknessName = controller.GetComponent<GameController>().sicknesses[y].sicknessName;
+                                        sicknesses[y].duration = controller.GetComponent<GameController>().sicknesses[y].duration;
+                                        sicknesses[y].statReductionFactor = controller.GetComponent<GameController>().sicknesses[y].statReductionFactor;
                                     }
                                     // Apply the sickness effects on stats (e.g., half the speed and strength)
                                     speed *= controller.GetComponent<GameController>().sicknesses[targetPrey.GetComponent<Creature>().sicknesses[i].sicknessID].statReductionFactor;
@@ -301,7 +304,10 @@ public class Creature : MonoBehaviour
                                 }
                                 for (int i = 0; i < sicknesses.Count; i++)
                                 {
-                                    sicknesses[i] = controller.GetComponent<GameController>().sicknesses[i];// WHERE THE PROBLEM LIES
+                                    sicknesses[i].sicknessID = controller.GetComponent<GameController>().sicknesses[i].sicknessID;
+                                    sicknesses[i].sicknessName = controller.GetComponent<GameController>().sicknesses[i].sicknessName;
+                                    sicknesses[i].duration = controller.GetComponent<GameController>().sicknesses[i].duration;
+                                    sicknesses[i].statReductionFactor = controller.GetComponent<GameController>().sicknesses[i].statReductionFactor;
                                 }
                                 // Apply the sickness effects on stats (e.g., half the speed and strength)
                                 speed *= controller.GetComponent<GameController>().sicknesses[randomSicknessID].statReductionFactor;
