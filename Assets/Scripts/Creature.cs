@@ -16,6 +16,7 @@ public class Creature : MonoBehaviour
     public bool isChasing;
     public bool isEating;
     public bool isMating;
+    public bool isContesting;
     public float speed;
     public float strength;
     public float originalSpeed;
@@ -126,7 +127,7 @@ public class Creature : MonoBehaviour
                 {
                     // SURROUND LOGIC
                     // Check if there are other predators nearby
-                    /*
+                    ///*
                     List<Transform> nearbyPredators = new List<Transform>();
                     Collider[] predatorColliders = Physics.OverlapSphere(transform.position, detectionRadius, predatorMask);
                     GameObject dominantPredator = null;
@@ -143,46 +144,63 @@ public class Creature : MonoBehaviour
                         {
                             dominantPredator = nearbyPredators[i].gameObject;
                         }
-                        else if (nearbyPredators[i].GetComponent<Creature>().strength == strength)
+                        else if (nearbyPredators[i].GetComponent<Creature>().strength == strength && dominantPredator == null)
                         {
+                            isContesting = true;
+                            isMating = false;
+                            isChasing = false;
+                            isEating = false;
+                            isFleeing = false;
+                            isRoaming = false;
                             targetPrey = nearbyPredators[i];
                         }
                     }
 
-                    if (nearbyPredators.Count > 0 && dominantPredator != null)
+                    if (!isContesting)
                     {
-                        // Coordinate with nearby predators to surround the prey
-                        Vector3 averagePosition = Vector3.zero;
-                        foreach (var predator in nearbyPredators)
+                        if (nearbyPredators.Count > 0 && dominantPredator != null)
                         {
-                            averagePosition += predator.position;
+                            targetPrey = null;
+                            // Coordinate with nearby predators to surround the prey
+                            Vector3 averagePosition = Vector3.zero;
+                            foreach (var predator in nearbyPredators)
+                            {
+                                averagePosition += predator.position;
+                            }
+                            averagePosition /= nearbyPredators.Count;
+    
+                            // Calculate the direction to the prey and move towards it
+                            Vector3 directionToPrey = (closestPrey.position - averagePosition).normalized;
+                            transform.LookAt(transform.position + directionToPrey);
+                            transform.position += transform.forward * speed * Time.deltaTime;
                         }
-                        averagePosition /= nearbyPredators.Count;
+                        else if (dominantPredator == null)
+                        {
+                            targetPrey = closestPrey;
+                        }
+                        else
+                        {
+                            // If no nearby predators, behave as before and chase the closest prey
+                            targetPrey = closestPrey;
+                            // Rest of the chasing logic remains the same as before
+                        }
+                    }
+                    //*/
 
-                        // Calculate the direction to the prey and move towards it
-                        Vector3 directionToPrey = (closestPrey.position - averagePosition).normalized;
-                        transform.LookAt(transform.position + directionToPrey);
-                        transform.position += transform.forward * speed * Time.deltaTime;
-                    }
-                    else if (dominantPredator == null)
-                    {
-                        targetPrey = closestPrey;
-                    }
-                    else
-                    {
-                        // If no nearby predators, behave as before and chase the closest prey
-                        targetPrey = closestPrey;
-                        // Rest of the chasing logic remains the same as before
-                    }
-                    */
-
-                    targetPrey = closestPrey;
+                    //targetPrey = closestPrey;
                 }
 
                 if (targetPrey != null)
                 {
-                    isChasing = true;
+                    if (!isContesting)
+                    {
+                        isChasing = true;
+                    }
                     isRoaming = false;
+                    if (targetPrey.gameObject.layer == 6)
+                    {
+                        isContesting = false;
+                    }
                     transform.LookAt(targetPrey.position);
                     transform.position += transform.forward * speed * Time.deltaTime;
 
@@ -219,6 +237,7 @@ public class Creature : MonoBehaviour
                             }
                         }
                         Destroy(targetPrey.gameObject);
+                        isContesting = false;
                         currentLifetime += 3;
                         targetPrey = null;
                         SetNewRoamDestination();
@@ -451,6 +470,7 @@ public class Creature : MonoBehaviour
                 newPreyScript.speed = MutateProperty(Mathf.RoundToInt(newPreyScript.speed), Random.Range(0.01f, 0.1f), 3);
                 newPreyScript.strength = MutateProperty(Mathf.RoundToInt(newPreyScript.strength), Random.Range(0.01f, 0.1f), 3);
                 newPreyScript.lifetime = MutateProperty(Mathf.RoundToInt(newPreyScript.lifetime), Random.Range(0.01f, 0.1f), 4);
+                newPreyScript.detectionRadius = MutateProperty(Mathf.RoundToInt(newPreyScript.detectionRadius), Random.Range(0.01f, 0.1f), 1);
 
                 newPreyScript.eatenResources = 0;
                 newPreyScript.isFull = false;

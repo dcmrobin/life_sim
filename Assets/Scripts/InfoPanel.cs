@@ -56,6 +56,10 @@ public class InfoPanel : MonoBehaviour
         {
             status.text = "Eating";
         }
+        else if (selectedCreatureScript.isContesting)
+        {
+            status.text = "Contesting";
+        }
         else
         {
             status.text = "Unknown";
