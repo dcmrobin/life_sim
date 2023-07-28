@@ -128,7 +128,7 @@ public class Creature : MonoBehaviour
                     /*
                     List<Transform> nearbyPredators = new List<Transform>();
                     Collider[] predatorColliders = Physics.OverlapSphere(transform.position, detectionRadius, predatorMask);
-                    bool reachedDest = false;
+                    GameObject dominantPredator = null;
                     foreach (var collider in predatorColliders)
                     {
                         if (collider.transform != this.transform)
@@ -136,8 +136,19 @@ public class Creature : MonoBehaviour
                             nearbyPredators.Add(collider.transform);
                         }
                     }
+                    for (int i = 0; i < nearbyPredators.Count; i++)
+                    {
+                        if (nearbyPredators[i].GetComponent<Creature>().strength > strength)
+                        {
+                            dominantPredator = nearbyPredators[i].gameObject;
+                        }
+                        else if (nearbyPredators[i].GetComponent<Creature>().strength == strength)
+                        {
+                            targetPrey = nearbyPredators[i];
+                        }
+                    }
 
-                    if (nearbyPredators.Count > 0)
+                    if (nearbyPredators.Count > 0 && dominantPredator != null)
                     {
                         // Coordinate with nearby predators to surround the prey
                         Vector3 averagePosition = Vector3.zero;
@@ -150,22 +161,19 @@ public class Creature : MonoBehaviour
                         // Calculate the direction to the prey and move towards it
                         Vector3 directionToPrey = (closestPrey.position - averagePosition).normalized;
                         transform.LookAt(transform.position + directionToPrey);
-                        if (transform.position != directionToPrey && !reachedDest)
-                        {
-                            transform.position += transform.forward * speed * Time.deltaTime;
-                        }
-                        else
-                        {
-                            reachedDest = true;
-                            targetPrey = closestPrey;
-                        }
+                        transform.position += transform.forward * speed * Time.deltaTime;
+                    }
+                    else if (dominantPredator == null)
+                    {
+                        targetPrey = closestPrey;
                     }
                     else
                     {
                         // If no nearby predators, behave as before and chase the closest prey
                         targetPrey = closestPrey;
                         // Rest of the chasing logic remains the same as before
-                    }*/
+                    }
+                    */
 
                     targetPrey = closestPrey;
                 }
@@ -268,13 +276,14 @@ public class Creature : MonoBehaviour
                     if (Vector3.Distance(transform.position, targetResource.position) <= 1f)
                     {
                         float sicknessChance = 0.037f;
+                        //float sicknessChance = 1f;
                         // Determine if the resource carries a sickness
                         bool carriesSickness = Random.value < sicknessChance;
 
                         if (carriesSickness)
                         {
                             contractedSicknesses += 1;
-                            int randomSicknessID = Random.Range(0, contractedSicknesses); // Assuming 1 is the minimum sickness ID
+                            int randomSicknessID = Random.Range(0, controller.GetComponent<GameController>().sicknesses.Count); // Assuming 1 is the minimum sickness ID
 
                             // Check if the prey is immune to the sickness
                             if (!immunityIDs.Contains(randomSicknessID) && !hasSymptoms)
