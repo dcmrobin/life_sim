@@ -95,6 +95,7 @@ public class Creature : MonoBehaviour
                     if (sicknesses[i].duration <= 0)
                     {
                         sicknesses.RemoveAt(i);
+                        contractedSicknesses -= 1;
                         if (sicknesses.Count <= 0)
                         {
                             isSick = false;
@@ -300,7 +301,7 @@ public class Creature : MonoBehaviour
                                 }
                                 for (int i = 0; i < sicknesses.Count; i++)
                                 {
-                                    sicknesses[i] = controller.GetComponent<GameController>().sicknesses[i];
+                                    sicknesses[i] = controller.GetComponent<GameController>().sicknesses[i];// WHERE THE PROBLEM LIES
                                 }
                                 // Apply the sickness effects on stats (e.g., half the speed and strength)
                                 speed *= controller.GetComponent<GameController>().sicknesses[randomSicknessID].statReductionFactor;
