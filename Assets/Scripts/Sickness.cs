@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class Sickness : MonoBehaviour
+public class Sickness
 {
     public int sicknessID;
     public string sicknessName;
