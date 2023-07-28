@@ -99,7 +99,7 @@ public class Creature : MonoBehaviour
                         {
                             isSick = false;
                             speed = originalSpeed;
-                            strength = originalSpeed;
+                            strength = originalStrength;
                         }
                     }
                 }
