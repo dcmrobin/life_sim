@@ -372,7 +372,7 @@ public class Creature : MonoBehaviour
             // Decrease the current lifetime
             if (isPredator || isSick)
             {
-                currentLifetime -= Time.deltaTime;
+                currentLifetime -= Time.deltaTime / strength;
             }
 
             if (currentLifetime <= 0f)
