@@ -1,12 +1,10 @@
 # life_sim
 There are predators and prey.
 
-//TODO//
-1. Make the player be able to interact with the simulation. (spawn things, kill creatures, etc)
-2. Have the creatures lay eggs that hatch instead of instantly spawning another creature.
+The predator's one goal is to eat prey to add an amount of time to its ever-decreasing lifetime, and the prey's one goal is to make more of itself.
 
-//IDEAS//
-1. Have there not be any predators at first, but have there be a chance for the newly born prey to be a predator?
+Mutations can happen.
 
-//BUGS//
-1. None so far!
+Predators can eat each other when their strengths are equal and they're both chasing a prey, but otherwise will let the predator with the highest strength get the kill.
+
+Predators will surround the prey if another predator is near to prevent it from escaping.
