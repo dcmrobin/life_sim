@@ -56,6 +56,7 @@ MonoBehaviour:
   isChasing: 0
   isEating: 0
   isMating: 0
+  isContesting: 0
   speed: 5
   strength: 0
   originalSpeed: 0
@@ -77,6 +78,7 @@ MonoBehaviour:
   controller: {fileID: 0}
   infoPanel: {fileID: 0}
   mutationSpherePrefab: {fileID: 215092596669132483, guid: 959bbc9fe4fcb754f8b60880ba0fcebb, type: 3}
+  eggPrefab: {fileID: 3661767435321214849, guid: 73f6b89ba59786e40abb4e8e7c50298d, type: 3}
   mate: {fileID: 0}
   isRoaming: 0
   tryMate: 0

@@ -31,7 +31,7 @@ public class Creature : MonoBehaviour
     public GameObject planeObject; // Reference to the plane object for movement constraints
     public GameObject controller;
     public GameObject infoPanel;
-    public GameObject mutationSpherePrefab;
+    public GameObject eggPrefab;
     Creature[] allCreatures;
     GameObject[] allResources;
     public GameObject mate;
@@ -46,24 +46,20 @@ public class Creature : MonoBehaviour
     private List<Collider> predatorList = new List<Collider>();
     private List<Collider> resourceList = new List<Collider>();
 
-    private Vector3 mutationSpherePosition;
-    private float mutationSphereSize;
-    private Color mutationSphereColor;
-
-    private float currentLifetime;
+    public float currentLifetime;
     public int eatenResources = 0;
 
     InfoPanel infoValues;
 
     private void Start()
     {
+        currentLifetime = lifetime;
         originalSpeed = speed;
         originalStrength = strength;
         //sicknesses = new Sickness[controller.GetComponent<GameController>().maxSicknessID];
         //sicknesses = controller.GetComponent<GameController>().sicknesses;
         initialPosition = transform.position;
         SetNewRoamDestination();
-        currentLifetime = lifetime;
     }
 
     private void Update()
@@ -382,7 +378,7 @@ public class Creature : MonoBehaviour
         }
     }
 
-    private void SetNewRoamDestination()
+    public void SetNewRoamDestination()
     {
         float roamRadius = 10f;
         Vector3 minBounds = planeObject.transform.position - planeObject.transform.localScale / 2f;
@@ -404,8 +400,6 @@ public class Creature : MonoBehaviour
         bool closeEnough = false;
 
         float transmissionChance = 0.8f;
-        float immunityChance = 0.05f;
-        //float inheritChance = 0.9f;
         // Find another prey in the scene that has also eaten enough resources to mate
         List<Creature> potentialMates = new List<Creature>();
     
@@ -435,11 +429,16 @@ public class Creature : MonoBehaviour
             if (closeEnough)
             {
                 // Instantiate a new prey at the mating position
-                GameObject newPrey = Instantiate(gameObject, transform.position, Quaternion.identity);
-                Creature newPreyScript = newPrey.GetComponent<Creature>();
-                newPreyScript.generation += 1;
-                newPrey.name = "Prey Generation " + newPreyScript.generation;
-                newPrey.name = newPrey.name.Replace("(Clone)", "");
+                GameObject newEgg = Instantiate(eggPrefab, transform.position, Quaternion.identity);
+                Egg eggScript = newEgg.GetComponent<Egg>();
+                eggScript.controller = controller;
+                eggScript.generation += 1;
+
+                // Assign values to egg
+                eggScript.lifetime = lifetime;
+                eggScript.speed = speed;
+                eggScript.strength = strength;
+                eggScript.detectionRadius = detectionRadius;
 
                 // Reset eatenResources counts for both mates and the newborn prey
                 eatenResources = 0;
@@ -452,35 +451,15 @@ public class Creature : MonoBehaviour
                     mate.GetComponent<Creature>().isSick = true;
                     if (Random.value < transmissionChance)
                     {
-                        newPreyScript.isSick = true;
-                        newPreyScript.sicknesses = sicknesses;
+                        eggScript.isSick = true;
+                        eggScript.sicknesses = sicknesses;
                     }
                 }
-
-                if (Random.value < immunityChance && immunityIDs.Count < controller.GetComponent<GameController>().maxSicknessID)
-                {
-                    immunityIDs.Add(Random.Range(0, controller.GetComponent<GameController>().maxSicknessID));
-                }
-                //if (Random.value < inheritChance)
-                //{
-                    newPreyScript.lifetime = lifetime;
-                    newPreyScript.speed = speed;
-                    newPreyScript.strength = strength;
-                //}
-                newPreyScript.speed = MutateProperty(Mathf.RoundToInt(newPreyScript.speed), Random.Range(0.01f, 0.1f), 3);
-                newPreyScript.strength = MutateProperty(Mathf.RoundToInt(newPreyScript.strength), Random.Range(0.01f, 0.1f), 3);
-                newPreyScript.lifetime = MutateProperty(Mathf.RoundToInt(newPreyScript.lifetime), Random.Range(0.01f, 0.1f), 4);
-                newPreyScript.detectionRadius = MutateProperty(Mathf.RoundToInt(newPreyScript.detectionRadius), Random.Range(0.01f, 0.1f), 1);
-
-                newPreyScript.eatenResources = 0;
-                newPreyScript.isFull = false;
-                newPreyScript.tryMate = false;
 
                 // Set new random destinations for all three preys
                 tryMate = false;
                 SetNewRoamDestination();
                 mate.SetNewRoamDestination();
-                newPreyScript.SetNewRoamDestination();
             }
         }
         else
@@ -503,50 +482,6 @@ public class Creature : MonoBehaviour
 
         infoPanel.SetActive(false);
         infoPanel.SetActive(true);
-    }
-
-    private float MutateProperty(int originalValue, float mutationChance, int maxMutationAmount)
-    {
-        if (Random.value < mutationChance)
-        {
-            float randomValue = 0;
-            while (randomValue == 0)
-            {
-                randomValue = Random.Range(Mathf.Round(-maxMutationAmount/2), maxMutationAmount);
-            }
-            Debug.Log("A mutation has occurred");
-            if (randomValue == 0)
-            {
-                Debug.Log("randomValue is zero!");
-            }
-            SpawnMutationSphere(transform);
-            return originalValue + randomValue;
-        }
-        return originalValue;
-    }
-
-    private void SpawnMutationSphere(Transform preyTransform)
-    {
-        // Instantiate the mutation sphere prefab
-        GameObject mutationSphere = Instantiate(mutationSpherePrefab, preyTransform);
-
-        // Randomly set the size of the mutation sphere (0.5 to 1.5 units)
-        float randomSize = Random.Range(0.2f, 0.7f);
-        mutationSphere.transform.localScale = Vector3.one * randomSize;
-
-        // Randomly set the color of the mutation sphere
-        Renderer sphereRenderer = mutationSphere.GetComponent<Renderer>();
-
-        Color randomColor = new Color(Random.value, Random.value, Random.value);
-        sphereRenderer.material.color = randomColor;
-
-        // Randomly set the position of the mutation sphere within the prey
-        Vector3 randomPosition = Random.insideUnitSphere * 0.5f;
-        mutationSphere.transform.localPosition = randomPosition;
-
-        mutationSpherePosition = mutationSphere.transform.localPosition;
-        mutationSphereSize = randomSize;
-        mutationSphereColor = randomColor;
     }
 
     public string GetSicknessesAsString()

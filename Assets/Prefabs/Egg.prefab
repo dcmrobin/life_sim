@@ -119,13 +119,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sicknesses: []
-  tryMate: 0
+  immunityIDs: 
   isFull: 0
   isSick: 0
-  lifeTime: 0
+  lifetime: 0
   speed: 0
   strength: 0
   detectionRadius: 0
   eatenResources: 0
   generation: 0
-  timeUntilHatch: 10
+  timeUntilHatch: 20
+  controller: {fileID: 0}
+  mutationSpherePrefab: {fileID: 215092596669132483, guid: 959bbc9fe4fcb754f8b60880ba0fcebb, type: 3}
+  preyPrefab: {fileID: 1868051460048642083, guid: 82853896bcff48a43b0fe30a97047a90, type: 3}
