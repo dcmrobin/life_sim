@@ -58,7 +58,7 @@ MonoBehaviour:
   isMating: 0
   isContesting: 0
   speed: 7
-  strength: 0
+  strength: 1
   originalSpeed: 0
   originalStrength: 0
   detectionRadius: 17

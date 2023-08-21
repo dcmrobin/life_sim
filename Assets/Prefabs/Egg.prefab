@@ -128,7 +128,7 @@ MonoBehaviour:
   detectionRadius: 0
   eatenResources: 0
   generation: 0
-  timeUntilHatch: 20
+  timeUntilHatch: 70
   controller: {fileID: 0}
   mutationSpherePrefab: {fileID: 215092596669132483, guid: 959bbc9fe4fcb754f8b60880ba0fcebb, type: 3}
   preyPrefab: {fileID: 1868051460048642083, guid: 82853896bcff48a43b0fe30a97047a90, type: 3}

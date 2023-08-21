@@ -1,6 +1,5 @@
 //TODO//
 1. Make the player be able to interact with the simulation. (spawn things, kill creatures, etc)
-2. Have the creatures lay eggs that hatch instead of instantly spawning another creature.
 3. The predators need some way of increasing their strength and speed, and some way of multiplying.
 
 //IDEAS//
