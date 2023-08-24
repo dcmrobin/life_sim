@@ -6,7 +6,6 @@ public class Egg : MonoBehaviour
 {
     [Header("Attributes for newborn to inherit")]
     public List<Sickness> sicknesses = new List<Sickness>();
-    public List<int> immunityIDs = new List<int>();
     public bool isFull;
     public bool isSick;
     public float lifetime;
@@ -50,7 +49,6 @@ public class Egg : MonoBehaviour
     public void SpawnPrey()
     {
         float transmissionChance = 0.8f;
-        float immunityChance = 0.05f;
 
         // Instantiate a new prey at the mating position
         GameObject newPrey = Instantiate(preyPrefab, transform.position, Quaternion.identity);
@@ -69,11 +67,6 @@ public class Egg : MonoBehaviour
                 newPreyScript.isSick = true;
                 newPreyScript.sicknesses = sicknesses;
             }
-        }
-
-        if (Random.value < immunityChance && immunityIDs.Count < controller.GetComponent<GameController>().maxSicknessID)
-        {
-            immunityIDs.Add(Random.Range(0, controller.GetComponent<GameController>().maxSicknessID));
         }
 
         newPreyScript.lifetime = lifetime;

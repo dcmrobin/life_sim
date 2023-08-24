@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 public class Creature : MonoBehaviour
 {
-    public List<int> immunityIDs = new List<int>();
     public List<Sickness> sicknesses = new List<Sickness>();
     int contractedSicknesses;
     SicknessNameGenerator sicknessNameGenerator = new SicknessNameGenerator();
@@ -207,7 +206,7 @@ public class Creature : MonoBehaviour
                             //int randomSicknessID = Random.Range(0, targetPrey.GetComponent<Creature>().contractedSicknesses); // Assuming 1 is the minimum sickness ID
                             for (int i = 0; i < targetPrey.GetComponent<Creature>().sicknesses.Count; i++)
                             {
-                                if (!immunityIDs.Contains(targetPrey.GetComponent<Creature>().sicknesses[i].sicknessID) && !hasSymptoms)
+                                if (!hasSymptoms)
                                 {
                                     hasSymptoms = true;
                                     isSick = true;
@@ -305,7 +304,7 @@ public class Creature : MonoBehaviour
                             int randomSicknessID = Random.Range(0, controller.GetComponent<GameController>().sicknesses.Count); // Assuming 1 is the minimum sickness ID
 
                             // Check if the prey is immune to the sickness
-                            if (!immunityIDs.Contains(randomSicknessID) && !hasSymptoms)
+                            if (!hasSymptoms)
                             {
                                 hasSymptoms = true;
                                 isSick = true;
